@@ -1,7 +1,6 @@
 #!/bin/bash
 
 PROJECT_NAME="${1}"
-AUTHOR="${2}"
 
 ROOT_PATH="."
 SRC_PATH="${ROOT_PATH}/src/${PROJECT_NAME}"
@@ -13,11 +12,10 @@ mkdir -p $SRC_PATH
 mkdir -p "${SRC_PATH}/tests"
 
 cat > "${SRC_PATH}/__init__.py" << EOL
-__version__ = '0.14.0'
-__author__ = '${AUTHOR}'
+__version__ = '0.0.0'
+__author__ = 'AUTHOR'
 EOL
 touch "${SRC_PATH}/main.py"
-touch "${SRC_PATH}/standalone.py"
 
 touch "${ROOT_PATH}/.env.dev"
 touch "${ROOT_PATH}/requirements.txt"
@@ -25,7 +23,7 @@ touch "${ROOT_PATH}/requirements.txt"
 
 # create python venv
 
-python -m venv "${ROOT_PATH}/venv"
+#python -m venv "${ROOT_PATH}/.venv"
 
 
 # config vs-code
@@ -33,10 +31,19 @@ python -m venv "${ROOT_PATH}/venv"
 mkdir -p "${ROOT_PATH}/.vscode"
 cat > "${ROOT_PATH}/.vscode/settings.json" << EOL
 {
-    "python.pythonPath": "\${workspaceFolder}/venv/bin/python",
-    "python.envFile": "\${workspaceFolder}/.env.dev",
     "files.exclude": {
         "**/__pycache__": true
+    },
+    "pylint.args": [
+        "--rcfile=${workspaceFolder}/.pylintrc.toml"
+    ],
+    "pylint.severity": {
+        "convention": "Warning",
+        "error": "Error",
+        "fatal": "Error",
+        "refactor": "Error",
+        "warning": "Error",
+        "info": "Warning"
     }
 }
 EOL
@@ -52,7 +59,8 @@ cat > "${ROOT_PATH}/.vscode/launch.json" << EOL
             "module": "${PROJECT_NAME}.main",
             "env": {
                 "PYTHONPATH": "\${workspaceFolder}/src"
-            }
+            },
+            "envFile": "\${workspaceFolder}/.env"
         },
     ]
 }
@@ -62,8 +70,11 @@ EOL
 # set gitignore
 
 cat >> "${ROOT_PATH}/.gitignore" << EOL
-/venv
+/.devcontainer
+/.venv
 /.vscode
+/.env.dev
+/.git
 __pycache__
 EOL
 
